@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallen VPN — Базовое право интернета - свобода!</title>
+  <style>
+    :root {
+      --bg-dark: #06080f;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-bg-hover: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-bright: rgba(255, 255, 255, 0.25);
+      --text-main: #f4f6fb;
+      --text-muted: #9aa3b8;
+      --accent-1: #3b82f6;
+      --accent-2: #8b5cf6;
+      --accent-3: #06b6d4;
+      --blur-val: blur(22px);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 999px;
+      --transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    /* Фоновые переливающиеся сферы (стиль Liquid Glass / macOS Dark) */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 0%, #0e152b 0%, #05070d 75%);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.45;
+      animation: floatOrb 18s infinite alternate ease-in-out;
+    }
+
+    .orb-1 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #2563eb, transparent 70%);
+      top: -120px;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #7c3aed, transparent 70%);
+      top: 25%;
+      right: -180px;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, #0891b2, transparent 70%);
+      bottom: -100px;
+      left: 20%;
+      animation-delay: -10s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 50px) scale(1.12); }
+    }
+
+    /* Стеклянные классы */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: var(--blur-val);
+      -webkit-backdrop-filter: var(--blur-val);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.13);
+      border-color: var(--glass-border-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .glass-btn.primary {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(139, 92, 246, 0.35));
+      border-color: rgba(139, 92, 246, 0.45);
+    }
+
+    .glass-btn.primary:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.55), rgba(139, 92, 246, 0.55));
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Шапка */
+    header {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      margin: 16px auto 0;
+      max-width: 1160px;
+      padding: 0 24px;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      border-radius: var(--radius-pill);
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Переключатель языка (без эмодзи) */
+    .lang-switch {
+      display: inline-flex;
+      position: relative;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      backdrop-filter: blur(14px);
+    }
+
+    .lang-switch button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 1;
+    }
+
+    .lang-switch button.active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    /* Hero блок */
+    .hero {
+      min-height: 76vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .hero-badge {
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      color: #c7d2fe;
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      max-width: 900px;
+      min-height: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #ffffff 20%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+    }
+
+    .scroll-hint {
+      margin-top: 56px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      animation: pulseDown 2.2s infinite;
+    }
+
+    @keyframes pulseDown {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(6px); opacity: 1; }
+    }
+
+    /* Анимация появления при прокрутке */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section {
+      padding: 70px 0;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 44px;
+      letter-spacing: -0.02em;
+    }
+
+    /* Тарифы */
+    .tariffs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 24px;
+    }
+
+    .tariff-card {
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tariff-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--glass-border-bright);
+      background: var(--glass-bg-hover);
+    }
+
+    .tariff-card.featured {
+      border-color: rgba(139, 92, 246, 0.45);
+      box-shadow: 0 16px 50px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .tariff-header h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .tariff-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      min-height: 44px;
+    }
+
+    /* Переключатель длительности внутри карточки */
+    .duration-pills {
+      display: flex;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+
+    .duration-pills button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .duration-pills button.active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .price-display {
+      margin-bottom: 26px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .price-row:not(:last-child) {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+    }
+
+    .price-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .price-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .price-alt-note {
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-top: 8px;
+      display: block;
+    }
+
+    /* Преимущества (Почему VPN / Почему мы) */
+    .features-split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    .feature-box {
+      border-radius: var(--radius-lg);
+      padding: 32px;
+    }
+
+    .feature-box h3 {
+      font-size: 22px;
+      margin-bottom: 22px;
+      color: #fff;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-list li {
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .feature-list li:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--glass-border-bright);
+      transform: translateX(4px);
+    }
+
+    .dot-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      flex-shrink: 0;
+    }
+
+    /* Кнопки переключения вкладок (Новости, Отзывы, Как работать с VPN) */
+    .hub-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .hub-btn.active {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--glass-border-bright);
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .hub-panel {
+      display: none;
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      animation: fadePanel 0.4s ease;
+    }
+
+    .hub-panel.active {
+      display: block;
+    }
+
+    @keyframes fadePanel {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Новости */
+    .news-card {
+      padding: 24px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+    }
+
+    .news-date {
+      font-size: 12px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* Отзывы */
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .review-item {
+      padding: 22px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .review-author {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .review-plan {
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .review-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Документация и Статья */
+    .doc-block {
+      margin-bottom: 32px;
+    }
+
+    .doc-block h3 {
+      font-size: 20px;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .doc-block h4 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      color: #c7d2fe;
+    }
+
+    .doc-block p, .doc-block li {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .doc-block ol, .doc-block ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .issue-card {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      margin-bottom: 16px;
+    }
+
+    .issue-card h4 {
+      margin-top: 0;
+      color: #fff;
+    }
+
+    .code-path {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    /* Модальные окна */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 5, 10, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadePanel 0.25s ease;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .pay-switch {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      margin: 20px 0;
+    }
+
+    .pay-switch button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .pay-switch button.active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .pay-info-box {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+    }
+
+    .wallet-box {
+      margin: 14px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #93c5fd;
+    }
+
+    /* Футер */
+    footer {
+      padding: 40px 24px 60px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 40px;
+    }
+
+    .footer-privacy-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-decoration: underline;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .footer-privacy-btn:hover {
+      color: #fff;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(154, 163, 184, 0.5);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .nav-bar { padding: 12px 18px; }
+      .hub-panel { padding: 24px 18px; }
+      .modal-box { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Навигация -->
+  <header>
+    <nav class="nav-bar glass">
+      <div class="brand">Wallen vpn</div>
+      <div class="lang-switch" role="group" aria-label="Language switcher">
+        <button type="button" id="btn-ru" class="active" onclick="setLang('ru')">Русский</button>
+        <button type="button" id="btn-en" onclick="setLang('en')">English</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Главный экран -->
+    <section class="hero">
+      <div class="hero-badge glass" data-i18n="heroBadge">VLESS + Reality · Next-Gen Network</div>
+      <h1 class="hero-title" id="scramble-title">Базовое право интернета - свобода!</h1>
+      <p class="hero-sub" data-i18n="heroSub">
+        Высокоскоростное шифрование трафика, устойчивые серверы и стабильный доступ без компромиссов.
+      </p>
+      <div class="scroll-hint" data-i18n="scrollHint">Листайте вниз</div>
+    </section>
+
+    <!-- Тарифы -->
+    <section id="tariffs" class="reveal">
+      <h2 class="section-title" data-i18n="tariffsTitle">Тарифы</h2>
+
+      <div class="tariffs-grid">
+        <!-- Тариф 1: Базовый -->
+        <div class="tariff-card glass" data-plan="basic">
+          <div>
+            <div class="tariff-header">
+              <h3 data-i18n="planBasicName">Базовый • 1 устройство</h3>
+              <p class="tariff-desc" data-i18n="planBasicDesc">1 устройство, LTE конфигурации, устойчивые серверы</p>
+            </div>
+
+            <div class="duration-pills">
+              <button type="button" onclick="selectDuration('basic', '7d', this)" data-i18n="dur7">7 дней</button>
+              <button type="button" class="active" onclick="selectDuration('basic', '30d', this)" data-i18n="dur30">30 дней</button>
+              <button type="button" onclick="selectDuration('basic', '365d', this)" data-i18n="dur365">365 дней</button>
+            </div>
+
+            <div class="price-display" id="price-basic">
+              <div class="price-row">
+                <span class="price-label">Telegram Stars(fragment,gifts)</span>
+                <span class="price-val">300 звезд</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">TON Crypto</span>
+                <span class="price-val">3,5 TON</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="glass-btn primary" onclick="openBuyModal('basic')" data-i18n="buyBtn">Купить</button>
+        </div>
+
+        <!-- Тариф 2: Премиум 1 устройство -->
+        <div class="tariff-card glass featured" data-plan="prem1">
+          <div>
+            <div class="tariff-header">
+              <h3 data-i18n="planPrem1Name">Премиум • 1 устройство</h3>
+              <p class="tariff-desc" data-i18n="planPrem1Desc">Все серверы + SSH, Mieru, TrustTunnel, Hys2 + LTE · 1 устройство · бета-тесты, шифрование трафика</p>
+            </div>
+
+            <div class="duration-pills">
+              <button type="button" onclick="selectDuration('prem1', '7d', this)" data-i18n="dur7">7 дней</button>
+              <button type="button" class="active" onclick="selectDuration('prem1', '30d', this)" data-i18n="dur30">30 дней</button>
+              <button type="button" onclick="selectDuration('prem1', '365d', this)" data-i18n="dur365">365 дней</button>
+            </div>
+
+            <div class="price-display" id="price-prem1">
+              <div class="price-row">
+                <span class="price-label">Telegram Stars(fragment,gifts)</span>
+                <span class="price-val">530 звезд</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">TON Crypto</span>
+                <span class="price-val">3 TON</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="glass-btn primary" onclick="openBuyModal('prem1')" data-i18n="buyBtn">Купить</button>
+        </div>
+
+        <!-- Тариф 3: Премиум 5 устройств -->
+        <div class="tariff-card glass" data-plan="prem5">
+          <div>
+            <div class="tariff-header">
+              <h3 data-i18n="planPrem5Name">Премиум • 5 устройств</h3>
+              <p class="tariff-desc" data-i18n="planPrem5Desc">Все серверы + SSH, Mieru, TrustTunnel, Hys2 + LTE · 5 устройств · бета-тесты, шифрование трафика</p>
+            </div>
+
+            <div class="duration-pills">
+              <button type="button" class="active" onclick="selectDuration('prem5', '30d', this)" data-i18n="dur30">30 дней</button>
+              <button type="button" onclick="selectDuration('prem5', '365d', this)" data-i18n="durYear">Год</button>
+            </div>
+
+            <div class="price-display" id="price-prem5">
+              <div class="price-row">
+                <span class="price-label">Telegram Stars(fragment,gifts)</span>
+                <span class="price-val">620 звезд / 270 звезд</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">TON Crypto</span>
+                <span class="price-val">3,5 TON / 5 TON</span>
+              </div>
+              <span class="price-alt-note" data-i18n="prem5Note">Стандартный пакет или промо-пакет (уточняйте при оформлении)</span>
+            </div>
+          </div>
+
+          <button type="button" class="glass-btn primary" onclick="openBuyModal('prem5')" data-i18n="buyBtn">Купить</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Почему VPN и Почему мы -->
+    <section class="reveal">
+      <div class="features-split">
+        <div class="feature-box glass">
+          <h3 data-i18n="whyVpnTitle">Почему впн?</h3>
+          <ul class="feature-list">
+            <li><span class="dot-indicator"></span><span data-i18n="whyVpn1">Шифрование трафика</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyVpn2">Конфиденциальность</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyVpn3">Обход белых списков</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyVpn4">Работа сервисов</span></li>
+          </ul>
+        </div>
+
+        <div class="feature-box glass">
+          <h3 data-i18n="whyUsTitle">Почему мы?</h3>
+          <ul class="feature-list">
+            <li><span class="dot-indicator"></span><span data-i18n="whyUs1">Поддержка 24/7</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyUs2">Безопасные протоколы: VLESS + reality</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyUs3">Много серверов</span></li>
+            <li><span class="dot-indicator"></span><span data-i18n="whyUs4">15% от оплаты на благотворительность</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Интерактивный центр: Новости, Отзывы, Документация -->
+    <section class="reveal">
+      <div class="hub-controls">
+        <button type="button" class="glass-btn hub-btn active" onclick="switchHub('news', this)" data-i18n="tabNews">Новости</button>
+        <button type="button" class="glass-btn hub-btn" onclick="switchHub('reviews', this)" data-i18n="tabReviews">Отзывы</button>
+        <button type="button" class="glass-btn hub-btn" onclick="switchHub('docs', this)" data-i18n="tabDocs">Как работать с впн</button>
+      </div>
+
+      <!-- Панель: Новости -->
+      <div id="hub-news" class="hub-panel glass active">
+        <div class="news-card">
+          <span class="news-date" data-i18n="newsDate">Официальный релиз · 2026</span>
+          <h3 style="margin-bottom: 10px;" data-i18n="newsTitle">Мы запустились! Wallen vpn открывает доступ к свободному интернету</h3>
+          <p style="color: var(--text-muted); font-size: 15px;" data-i18n="newsBody">
+            Сегодня мы официально запускаем инфраструктуру Wallen vpn. В вашем распоряжении высокоскоростные серверы на базе протокола VLESS + Reality, специализированные LTE-конфигурации, поддержка SSH, Mieru, TrustTunnel и Hysteria2, а также круглосуточная поддержка. Кроме того, 15% с каждой оплаты мы направляем на благотворительность.
+          </p>
+        </div>
+      </div>
+
+      <!-- Панель: Отзывы (5 штук) -->
+      <div id="hub-reviews" class="hub-panel glass">
+        <div class="reviews-grid">
+          <div class="review-item">
+            <div class="review-author">@alex_k</div>
+            <span class="review-plan" data-i18n="rev1Plan">Премиум • 1 устройство</span>
+            <p class="review-text" data-i18n="rev1Text">Подключил за две минуты через Happ на iPhone. Скорость не режется вообще, YouTube в 4K грузится мгновенно, даже на мобильном LTE.</p>
+          </div>
+          <div class="review-item">
+            <div class="review-author">@marina_v</div>
+            <span class="review-plan" data-i18n="rev2Plan">Базовый • 1 устройство</span>
+            <p class="review-text" data-i18n="rev2Text">Очень порадовала оплата через Telegram Stars и быстрая выдача ключа. Поддержка ответила за пару минут и помогла с настройкой.</p>
+          </div>
+          <div class="review-item">
+            <div class="review-author">@dmitry_dev</div>
+            <span class="review-plan" data-i18n="rev3Plan">Премиум • 5 устройств</span>
+            <p class="review-text" data-i18n="rev3Text">Взял тариф на 5 устройств для всей семьи и рабочих ноутбуков. VLESS + Reality и Hys2 держат соединение железобетонно, ничего не отваливается.</p>
+          </div>
+          <div class="review-item">
+            <div class="review-author">@elena_s</div>
+            <span class="review-plan" data-i18n="rev4Plan">Премиум • 1 устройство</span>
+            <p class="review-text" data-i18n="rev4Text">Отдельный респект за встроенную блокировку рекламы и то, что часть средств идет на благотворительность. Пользуюсь третий месяц без нареканий.</p>
+          </div>
+          <div class="review-item">
+            <div class="review-author">@igor_ton</div>
+            <span class="review-plan" data-i18n="rev5Plan">Премиум • 5 устройств</span>
+            <p class="review-text" data-i18n="rev5Text">Оплатил в TON за секунду. Отлично обходит ограничения и белые списки, стабильный пинг и огромный выбор локаций.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель: Документация и Статья -->
+      <div id="hub-docs" class="hub-panel glass">
+        <div class="doc-block">
+          <h3 data-i18n="docGuideTitle">Инструкция по подключению</h3>
+          
+          <h4 data-i18n="docIosTitle">Для iOS (iPhone / iPad)</h4>
+          <ol>
+            <li data-i18n="docIosStep1">
+              Скачайте официальное приложение <strong>Happ</strong> из App Store: 
+              <a href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: underline;">Открыть Happ в App Store</a>.
+            </li>
+            <li data-i18n="docIosStep2">Запустите приложение и разрешите добавление VPN-конфигураций при первом запуске.</li>
+            <li data-i18n="docIosStep3">Оплатите подходящий тариф на нашем сайте и получите персональную ссылку-подписку (ключ).</li>
+            <li data-i18n="docIosStep4">
+              Скопируйте полученную ссылку. В приложении Happ нажмите на кнопку <strong>«+»</strong> в правом верхнем углу экрана и выберите пункт <strong>«Вставить из буфера обмена» (Paste from Clipboard)</strong> или <strong>«Добавить подписку» (Add Subscription)</strong>.
+            </li>
+            <li data-i18n="docIosStep5">После загрузки списка выберите нужный сервер из списка и нажмите большую круглую кнопку запуска по центру экрана.</li>
+          </ol>
+
+          <h4 data-i18n="docAndroidTitle">Для Android</h4>
+          <p data-i18n="docAndroidText">
+            На данный момент для устройств Android также используется клиент <strong>Happ</strong> (установка и вставка подписки через кнопку «+» аналогичны версии для iOS). Параллельно наша команда ведет разработку собственного фирменного клиента Wallen vpn с подключением в один клик.
+          </p>
+        </div>
+
+        <div class="doc-block">
+          <h3 data-i18n="docIssuesTitle">Возможные проблемы и их решение</h3>
+
+          <div class="issue-card">
+            <h4 data-i18n="issue1Title">1. Превышен лимит памяти (iOS)</h4>
+            <p data-i18n="issue1Desc">
+              Это достаточно частая проблема, она вызвана тем, что внутри некоторых наших конфигураций зашит блокировщик рекламы через маршрутизацию. Он автоматически блокирует исходящий трафик на домены Google Ads и подобные популярные сервисы.
+            </p>
+            <p data-i18n="issue1Fix">
+              Чтобы убрать эту ошибку, перейдите по пути: <span class="code-path">Настройки -> Dev Settings -> No-limit mode</span> и активируйте переключатель.
+            </p>
+          </div>
+
+          <div class="issue-card">
+            <h4 data-i18n="issue2Title">2. Некорректный пинг</h4>
+            <p data-i18n="issue2Desc">
+              В большинстве случаев ping в Happ будет врать, все потому что пинг по умолчанию (via Proxy GET в стандартном режиме) включает в задержку и само подключение к серверу, которое может растянуться.
+            </p>
+            <p data-i18n="issue2Fix">
+              Для просмотра настоящего пинга обновите Happ до последней версии и установите в разделе <span class="code-path">Настройки -> пинг</span> параметр <strong>«режим (via Proxy)»</strong> в значение <strong>KeepAlive</strong>.
+            </p>
+          </div>
+
+          <div class="issue-card">
+            <h4 data-i18n="issue3Title">3. Сервер белых списков</h4>
+            <p data-i18n="issue3Desc">
+              В некоторых случаях он может не пинговаться или показывать большие задержки, это связано с тем, что это не прямое подключение, а через промежуточный сервер в России. Отсутствие пинга не мешает подключению и стабильной работе.
+            </p>
+          </div>
+        </div>
+
+        <div class="doc-block" style="margin-bottom: 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+          <h3 data-i18n="articleTitle">Что такое VPN, зачем он нужен и как работают современные протоколы</h3>
+          <p data-i18n="articleP1">
+            <strong>VPN (Virtual Private Network)</strong> — это виртуальная частная сеть, которая создает защищенный зашифрованный туннель между вашим устройством и удаленным сервером. Весь ваш интернет-трафик проходит внутри этого туннеля, благодаря чему интернет-провайдеры, владельцы публичных Wi-Fi сетей и системы фильтрации не видят, какие сайты вы посещаете и какими сервисами пользуетесь.
+          </p>
+          <p data-i18n="articleP2">
+            <strong>Зачем нужен VPN сегодня?</strong> Помимо защиты личных данных и паролей в открытых сетях, современный VPN возвращает базовое право на свободный доступ к информации, образовательным платформам, рабочим инструментам и привычным цифровым сервисам без искусственных ограничений.
+          </p>
+          <p data-i18n="articleP3">
+            <strong>Почему протоколы имеют решающее значение?</strong> Устаревшие протоколы (такие как OpenVPN или WireGuard в чистом виде) легко определяются системами глубокого анализа пакетов (DPI) и блокируются. В Wallen vpn мы используем стек протоколов нового поколения:
+          </p>
+          <ul>
+            <li data-i18n="articleProto1"><strong>VLESS + Reality:</strong> маскирует ваш трафик под обычное посещение популярных легитимных сайтов с реальными TLS-сертификатами. Для систем фильтрации ваше соединение неотличимо от обычного HTTPS-запроса.</li>
+            <li data-i18n="articleProto2"><strong>Hysteria2 (Hys2):</strong> высокоскоростной протокол на базе QUIC, который обеспечивает максимальную пропускную способность и минимальные задержки даже на нестабильных мобильных сетях с высоким процентом потерь пакетов.</li>
+            <li data-i18n="articleProto3"><strong>Mieru, TrustTunnel и SSH-туннели:</strong> резервные многоуровневые транспорты для сложных сетевых условий, корпоративных фаерволов и режимов белых списков.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Футер -->
+  <footer>
+    <button type="button" class="footer-privacy-btn" onclick="openPrivacyModal()" data-i18n="privacyLink">
+      Политика конфиденциальности и условия возврата
+    </button>
+    <div class="footer-copy">Wallen vpn © 2026</div>
+  </footer>
+
+  <!-- Модальное окно оплаты -->
+  <div class="modal-overlay" id="buy-modal" onclick="closeModalOnBg(event, 'buy-modal')">
+    <div class="modal-box glass">
+      <button type="button" class="modal-close" onclick="closeModal('buy-modal')">×</button>
+      <h3 id="modal-plan-title" style="font-size: 22px; margin-bottom: 6px;">Оформление тарифа</h3>
+      <p id="modal-plan-subtitle" style="font-size: 14px; color: var(--text-muted);"></p>
+
+      <div class="pay-switch">
+        <button type="button" id="pay-tab-stars" class="active" onclick="switchPayMethod('stars')">Telegram Stars</button>
+        <button type="button" id="pay-tab-ton" onclick="switchPayMethod('ton')">TON</button>
+      </div>
+
+      <!-- Оплата звездами -->
+      <div id="pay-content-stars" class="pay-info-box">
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="starsIntro">
+          Для оплаты звездами Telegram свяжитесь с нашим менеджером в Telegram:
+        </p>
+        <div style="margin-bottom: 16px;">
+          <a href="https://t.me/wqreloxzz" target="_blank" rel="noopener noreferrer" class="glass-btn primary" style="width: 100%;">
+            @wqreloxzz
+          </a>
+        </div>
+        <p style="font-size: 14px; line-height: 1.5; color: #e2e8f0;" data-i18n="starsInstruction">
+          Отправить оплату можно либо через <strong>Fragment</strong> (и отправить скриншот подтверждения менеджеру), либо напрямую <strong>подарками</strong> в Telegram. Укажите выбранный тариф в сообщении.
+        </p>
+      </div>
+
+      <!-- Оплата TON -->
+      <div id="pay-content-ton" class="pay-info-box" style="display: none;">
+        <p style="font-size: 14px; color: var(--text-muted);" data-i18n="tonIntro">
+          Переведите необходимую сумму в сети TON на указанный адрес кошелька:
+        </p>
+        <div class="wallet-box" id="ton-address">UQBoC-pdnu_rpPZ9LXYUtMn1vqn84FhBC7cNsgtp-Zfs4ABP</div>
+        <button type="button" class="glass-btn" style="width: 100%; margin-bottom: 16px;" onclick="copyTonAddress()" id="copy-ton-btn" data-i18n="copyBtn">
+          Скопировать адрес кошелька
+        </button>
+        <p style="font-size: 14px; line-height: 1.5; color: #fde68a;" data-i18n="tonCommentNote">
+          Обязательно напишите ваш <strong>@username в Telegram</strong> и <strong>название тарифа</strong> в подписи (комментарии) к переводу, чтобы мы могли выдать вам ключ.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Политики конфиденциальности -->
+  <div class="modal-overlay" id="privacy-modal" onclick="closeModalOnBg(event, 'privacy-modal')">
+    <div class="modal-box glass">
+      <button type="button" class="modal-close" onclick="closeModal('privacy-modal')">×</button>
+      <h3 style="font-size: 20px; margin-bottom: 16px;" data-i18n="privacyModalTitle">Политика конфиденциальности и возврат средств</h3>
+      
+      <div style="font-size: 14px; color: var(--text-muted); display: flex; flex-direction: column; gap: 14px;">
+        <p data-i18n="privacyP1">
+          <strong>1. Какие данные собирает базовый VPN:</strong><br>
+          Wallen vpn придерживается строгой политики отсутствия логов активности (No-Logs). Мы не записываем, не храним и не передаем третьим лицам историю посещенных вами сайтов, DNS-запросы, содержимое трафика или ваш исходный IP-адрес. Для функционирования подписки и учета лимита устройств система обрабатывает исключительно технический идентификатор ключа, дату окончания тарифа и суммарный объем использованного трафика без привязки к вашим действиям в сети.
+        </p>
+        <p data-i18n="privacyP2">
+          <strong>2. Гарантия возврата средств:</strong><br>
+          Мы ценим доверие пользователей и гарантируем возврат оплаты в случае возникновения технических проблем на стороне нашего сервиса, если наша служба поддержки не смогла восстановить работоспособность подключения на вашем устройстве. Для оформления возврата достаточно написать в поддержку @wqreloxzz.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Состояние языка и выбранных длительностей
+    let currentLang = 'ru';
+    const selectedDurations = {
+      basic: '30d',
+      prem1: '30d',
+      prem5: '30d'
+    };
+
+    // База цен
+    const pricingData = {
+      basic: {
+        '7d': { stars: { ru: '130 звезд', en: '130 Stars' }, ton: '1 TON' },
+        '30d': { stars: { ru: '300 звезд', en: '300 Stars' }, ton: '3,5 TON' },
+        '365d': { stars: { ru: '2700 звезд', en: '2700 Stars' }, ton: '15 TON' }
+      },
+      prem1: {
+        '7d': { stars: { ru: '220 звезд', en: '220 Stars' }, ton: '1,8 TON' },
+        '30d': { stars: { ru: '530 звезд', en: '530 Stars' }, ton: '3 TON' },
+        '365d': { stars: { ru: '5000 звезд', en: '5000 Stars' }, ton: '25 TON' }
+      },
+      prem5: {
+        '30d': {
+          stars: { ru: '620 звезд / 270 звезд', en: '620 Stars / 270 Stars' },
+          ton: '3,5 TON / 5 TON',
+          note: { ru: 'Стандартный пакет или промо-пакет (уточняйте при оформлении)', en: 'Standard or promo package (confirm upon checkout)' }
+        },
+        '365d': {
+          stars: { ru: '6200 звезд', en: '6200 Stars' },
+          ton: '30 TON'
+        }
+      }
+    };
+
+    // Словарь переводов RU / EN
+    const i18n = {
+      ru: {
+        heroBadge: 'VLESS + Reality · Сеть нового поколения',
+        heroTitle: 'Базовое право интернета - свобода!',
+        heroSub: 'Высокоскоростное шифрование трафика, устойчивые серверы и стабильный доступ без компромиссов.',
+        scrollHint: 'Листайте вниз',
+        tariffsTitle: 'Тарифы',
+        planBasicName: 'Базовый • 1 устройство',
+        planBasicDesc: '1 устройство, LTE конфигурации, устойчивые серверы',
+        planPrem1Name: 'Премиум • 1 устройство',
+        planPrem1Desc: 'Все серверы + SSH, Mieru, TrustTunnel, Hys2 + LTE · 1 устройство · бета-тесты, шифрование трафика',
+        planPrem5Name: 'Премиум • 5 устройств',
+        planPrem5Desc: 'Все серверы + SSH, Mieru, TrustTunnel, Hys2 + LTE · 5 устройств · бета-тесты, шифрование трафика',
+        dur7: '7 дней',
+        dur30: '30 дней',
+        dur365: '365 дней',
+        durYear: 'Год',
+        buyBtn: 'Купить',
+        prem5Note: 'Стандартный пакет или промо-пакет (уточняйте при оформлении)',
+        whyVpnTitle: 'Почему впн?',
+        whyVpn1: 'Шифрование трафика',
+        whyVpn2: 'Конфиденциальность',
+        whyVpn3: 'Обход белых списков',
+        whyVpn4: 'Работа сервисов',
+        whyUsTitle: 'Почему мы?',
+        whyUs1: 'Поддержка 24/7',
+        whyUs2: 'Безопасные протоколы: VLESS + reality',
+        whyUs3: 'Много серверов',
+        whyUs4: '15% от оплаты на благотворительность',
+        tabNews: 'Новости',
+        tabReviews: 'Отзывы',
+        tabDocs: 'Как работать с впн',
+        newsDate: 'Официальный релиз · 2026',
+        newsTitle: 'Мы запустились! Wallen vpn открывает доступ к свободному интернету',
+        newsBody: 'Сегодня мы официально запускаем инфраструктуру Wallen vpn. В вашем распоряжении высокоскоростные серверы на базе протокола VLESS + Reality, специализированные LTE-конфигурации, поддержка SSH, Mieru, TrustTunnel и Hysteria2, а также круглосуточная поддержка. Кроме того, 15% с каждой оплаты мы направляем на благотворительность.',
+        rev1Plan: 'Премиум • 1 устройство',
+        rev1Text: 'Подключил за две минуты через Happ на iPhone. Скорость не режется вообще, YouTube в 4K грузится мгновенно, даже на мобильном LTE.',
+        rev2Plan: 'Базовый • 1 устройство',
+        rev2Text: 'Очень порадовала оплата через Telegram Stars и быстрая выдача ключа. Поддержка ответила за пару минут и помогла с настройкой.',
+        rev3Plan: 'Премиум • 5 устройств',
+        rev3Text: 'Взял тариф на 5 устройств для всей семьи и рабочих ноутбуков. VLESS + Reality и Hys2 держат соединение железобетонно, ничего не отваливается.',
+        rev4Plan: 'Премиум • 1 устройство',
+        rev4Text: 'Отдельный респект за встроенную блокировку рекламы и то, что часть средств идет на благотворительность. Пользуюсь третий месяц без нареканий.',
+        rev5Plan: 'Премиум • 5 устройств',
+        rev5Text: 'Оплатил в TON за секунду. Отлично обходит ограничения и белые списки, стабильный пинг и огромный выбор локаций.',
+        docGuideTitle: 'Инструкция по подключению',
+        docIosTitle: 'Для iOS (iPhone / iPad)',
+        docIosStep1: 'Скачайте официальное приложение <strong>Happ</strong> из App Store: <a href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: underline;">Открыть Happ в App Store</a>.',
+        docIosStep2: 'Запустите приложение и разрешите добавление VPN-конфигураций при первом запуске.',
+        docIosStep3: 'Оплатите подходящий тариф на нашем сайте и получите персональную ссылку-подписку (ключ).',
+        docIosStep4: 'Скопируйте полученную ссылку. В приложении Happ нажмите на кнопку <strong>«+»</strong> в правом верхнем углу экрана и выберите пункт <strong>«Вставить из буфера обмена» (Paste from Clipboard)</strong> или <strong>«Добавить подписку» (Add Subscription)</strong>.',
+        docIosStep5: 'После загрузки списка выберите нужный сервер из списка и нажмите большую круглую кнопку запуска по центру экрана.',
+        docAndroidTitle: 'Для Android',
+        docAndroidText: 'На данный момент для устройств Android также используется клиент <strong>Happ</strong> (установка и вставка подписки через кнопку «+» аналогичны версии для iOS). Параллельно наша команда ведет разработку собственного фирменного клиента Wallen vpn с подключением в один клик.',
+        docIssuesTitle: 'Возможные проблемы и их решение',
+        issue1Title: '1. Превышен лимит памяти (iOS)',
+        issue1Desc: 'Это достаточно частая проблема, она вызвана тем, что внутри некоторых наших конфигураций зашит блокировщик рекламы через маршрутизацию. Он автоматически блокирует исходящий трафик на домены Google Ads и подобные популярные сервисы.',
+        issue1Fix: 'Чтобы убрать эту ошибку, перейдите по пути: <span class="code-path">Настройки -> Dev Settings -> No-limit mode</span> и активируйте переключатель.',
+        issue2Title: '2. Некорректный пинг',
+        issue2Desc: 'В большинстве случаев ping в Happ будет врать, все потому что пинг по умолчанию (via Proxy GET в стандартном режиме) включает в задержку и само подключение к серверу, которое может растянуться.',
+        issue2Fix: 'Для просмотра настоящего пинга обновите Happ до последней версии и установите в разделе <span class="code-path">Настройки -> пинг</span> параметр <strong>«режим (via Proxy)»</strong> в значение <strong>KeepAlive</strong>.',
+        issue3Title: '3. Сервер белых списков',
+        issue3Desc: 'В некоторых случаях он может не пинговаться или показывать большие задержки, это связано с тем, что это не прямое подключение, а через промежуточный сервер в России. Отсутствие пинга не мешает подключению и стабильной работе.',
+        articleTitle: 'Что такое VPN, зачем он нужен и как работают современные протоколы',
+        articleP1: '<strong>VPN (Virtual Private Network)</strong> — это виртуальная частная сеть, которая создает защищенный зашифрованный туннель между вашим устройством и удаленным сервером. Весь ваш интернет-трафик проходит внутри этого туннеля, благодаря чему интернет-провайдеры, владельцы публичных Wi-Fi сетей и системы фильтрации не видят, какие сайты вы посещаете и какими сервисами пользуетесь.',
+        articleP2: '<strong>Зачем нужен VPN сегодня?</strong> Помимо защиты личных данных и паролей в открытых сетях, современный VPN возвращает базовое право на свободный доступ к информации, образовательным платформам, рабочим инструментам и привычным цифровым сервисам без искусственных ограничений.',
+        articleP3: '<strong>Почему протоколы имеют решающее значение?</strong> Устаревшие протоколы (такие как OpenVPN или WireGuard в чистом виде) легко определяются системами глубокого анализа пакетов (DPI) и блокируются. В Wallen vpn мы используем стек протоколов нового поколения:',
+        articleProto1: '<strong>VLESS + Reality:</strong> маскирует ваш трафик под обычное посещение популярных легитимных сайтов с реальными TLS-сертификатами. Для систем фильтрации ваше соединение неотличимо от обычного HTTPS-запроса.',
+        articleProto2: '<strong>Hysteria2 (Hys2):</strong> высокоскоростной протокол на базе QUIC, который обеспечивает максимальную пропускную способность и минимальные задержки даже на нестабильных мобильных сетях с высоким процентом потерь пакетов.',
+        articleProto3: '<strong>Mieru, TrustTunnel и SSH-туннели:</strong> резервные многоуровневые транспорты для сложных сетевых условий, корпоративных фаерволов и режимов белых списков.',
+        privacyLink: 'Политика конфиденциальности и условия возврата',
+        starsIntro: 'Для оплаты звездами Telegram свяжитесь с нашим менеджером в Telegram:',
+        starsInstruction: 'Отправить оплату можно либо через <strong>Fragment</strong> (и отправить скриншот подтверждения менеджеру), либо напрямую <strong>подарками</strong> в Telegram. Укажите выбранный тариф в сообщении.',
+        tonIntro: 'Переведите необходимую сумму в сети TON на указанный адрес кошелька:',
+        copyBtn: 'Скопировать адрес кошелька',
+        copiedBtn: 'Адрес скопирован!',
+        tonCommentNote: 'Обязательно напишите ваш <strong>@username в Telegram</strong> и <strong>название тарифа</strong> в подписи (комментарии) к переводу, чтобы мы могли выдать вам ключ.',
+        privacyModalTitle: 'Политика конфиденциальности и возврат средств',
+        privacyP1: '<strong>1. Какие данные собирает базовый VPN:</strong><br>Wallen vpn придерживается строгой политики отсутствия логов активности (No-Logs). Мы не записываем, не храним и не передаем третьим лицам историю посещенных вами сайтов, DNS-запросы, содержимое трафика или ваш исходный IP-адрес. Для функционирования подписки и учета лимита устройств система обрабатывает исключительно технический идентификатор ключа, дату окончания тарифа и суммарный объем использованного трафика без привязки к вашим действиям в сети.',
+        privacyP2: '<strong>2. Гарантия возврата средств:</strong><br>Мы ценим доверие пользователей и гарантируем возврат оплаты в случае возникновения технических проблем на стороне нашего сервиса, если наша служба поддержки не смогла восстановить работоспособность подключения на вашем устройстве. Для оформления возврата достаточно написать в поддержку @wqreloxzz.'
+      },
+      en: {
+        heroBadge: 'VLESS + Reality · Next-Gen Network',
+        heroTitle: 'The basic right of the internet is freedom!',
+        heroSub: 'High-speed traffic encryption, resilient servers, and uninterrupted access without compromises.',
+        scrollHint: 'Scroll down',
+        tariffsTitle: 'Plans',
+        planBasicName: 'Basic • 1 device',
+        planBasicDesc: '1 device, LTE configurations, resilient servers',
+        planPrem1Name: 'Premium • 1 device',
+        planPrem1Desc: 'All servers + SSH, Mieru, TrustTunnel, Hys2 + LTE · 1 device · beta tests, traffic encryption',
+        planPrem5Name: 'Premium • 5 devices',
+        planPrem5Desc: 'All servers + SSH, Mieru, TrustTunnel, Hys2 + LTE · 5 devices · beta tests, traffic encryption',
+        dur7: '7 days',
+        dur30: '30 days',
+        dur365: '365 days',
+        durYear: '1 Year',
+        buyBtn: 'Buy',
+        prem5Note: 'Standard or promo package (confirm upon checkout)',
+        whyVpnTitle: 'Why VPN?',
+        whyVpn1: 'Traffic encryption',
+        whyVpn2: 'Privacy protection',
+        whyVpn3: 'Whitelist bypass',
+        whyVpn4: 'Unrestricted service access',
+        whyUsTitle: 'Why us?',
+        whyUs1: '24/7 Support',
+        whyUs2: 'Secure protocols: VLESS + reality',
+        whyUs3: 'Wide server network',
+        whyUs4: '15% of payments donated to charity',
+        tabNews: 'News',
+        tabReviews: 'Reviews',
+        tabDocs: 'How to use VPN',
+        newsDate: 'Official Launch · 2026',
+        newsTitle: 'We have launched! Wallen vpn opens access to a free internet',
+        newsBody: 'Today we officially launch the Wallen vpn infrastructure. You get high-speed servers powered by VLESS + Reality, specialized LTE configurations, SSH, Mieru, TrustTunnel, and Hysteria2 support, plus 24/7 customer care. Additionally, 15% of every payment is donated to charity.',
+        rev1Plan: 'Premium • 1 device',
+        rev1Text: 'Set it up in two minutes via Happ on my iPhone. Zero speed loss, 4K YouTube loads instantly even on mobile LTE.',
+        rev2Plan: 'Basic • 1 device',
+        rev2Text: 'Loved paying with Telegram Stars and getting my key right away. Support replied within a couple of minutes and helped with setup.',
+        rev3Plan: 'Premium • 5 devices',
+        rev3Text: 'Got the 5-device plan for the whole family and work laptops. VLESS + Reality and Hys2 hold a rock-solid connection.',
+        rev4Plan: 'Premium • 1 device',
+        rev4Text: 'Huge respect for the built-in ad blocker and donating a share of revenue to charity. Been using it for three months with zero issues.',
+        rev5Plan: 'Premium • 5 devices',
+        rev5Text: 'Paid in TON in a second. Easily bypasses restrictions and whitelists, stable ping and plenty of server locations.',
+        docGuideTitle: 'Connection Guide',
+        docIosTitle: 'For iOS (iPhone / iPad)',
+        docIosStep1: 'Download the official <strong>Happ</strong> app from the App Store: <a href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: underline;">Open Happ in App Store</a>.',
+        docIosStep2: 'Launch the app and allow VPN configuration permissions on first startup.',
+        docIosStep3: 'Purchase your preferred plan on our website and receive your personal subscription link (key).',
+        docIosStep4: 'Copy the link you received. In the Happ app, tap the <strong>"+"</strong> button in the top right corner and select <strong>"Paste from Clipboard"</strong> or <strong>"Add Subscription"</strong>.',
+        docIosStep5: 'Once the server list loads, choose any server and tap the large circular power button in the center.',
+        docAndroidTitle: 'For Android',
+        docAndroidText: 'Currently, Android devices also use the <strong>Happ</strong> client (installation and adding the subscription via the "+" button work the same way as on iOS). Meanwhile, our team is actively developing our own native Wallen vpn client with one-tap connection.',
+        docIssuesTitle: 'Known Issues & Troubleshooting',
+        issue1Title: '1. Memory Limit Exceeded (iOS)',
+        issue1Desc: 'This is a fairly common issue caused by a routing-level ad blocker built into some of our configurations. It automatically blocks outbound traffic to Google Ads domains and similar services.',
+        issue1Fix: 'To resolve this error, go to: <span class="code-path">Settings -> Dev Settings -> No-limit mode</span> and enable the toggle.',
+        issue2Title: '2. Inaccurate Ping',
+        issue2Desc: 'In most cases, ping in Happ shows inaccurate numbers because the default ping mode (via Proxy GET) includes the initial server handshake time in the latency calculation.',
+        issue2Fix: 'To see the true ping, update Happ to the latest version and set <span class="code-path">Settings -> Ping</span> <strong>"Mode (via Proxy)"</strong> to <strong>KeepAlive</strong>.',
+        issue3Title: '3. Whitelist Server',
+        issue3Desc: 'In some cases, it may show no ping or high latency because it routes traffic through an intermediate server rather than a direct connection. The lack of ping does not affect connection stability.',
+        articleTitle: 'What is a VPN, Why You Need It, and How Modern Protocols Work',
+        articleP1: '<strong>VPN (Virtual Private Network)</strong> creates an encrypted tunnel between your device and a remote server. All your internet traffic travels inside this tunnel, preventing ISPs, public Wi-Fi operators, and filtering systems from seeing the websites you visit or the services you use.',
+        articleP2: '<strong>Why do you need a VPN today?</strong> Beyond securing personal data and passwords on open networks, a modern VPN restores the fundamental right to open access to information, educational resources, work tools, and everyday digital platforms.',
+        articleP3: '<strong>Why do protocols matter?</strong> Legacy protocols (such as plain OpenVPN or WireGuard) are easily fingerprinted by Deep Packet Inspection (DPI) systems. At Wallen vpn, we utilize a next-generation protocol stack:',
+        articleProto1: '<strong>VLESS + Reality:</strong> disguises your traffic as standard visits to legitimate websites using real TLS certificates, making your connection indistinguishable from regular HTTPS traffic.',
+        articleProto2: '<strong>Hysteria2 (Hys2):</strong> a high-speed QUIC-based protocol delivering maximum throughput and ultra-low latency even on unstable mobile networks with packet loss.',
+        articleProto3: '<strong>Mieru, TrustTunnel & SSH tunnels:</strong> multi-layered fallback transports engineered for restrictive networks, corporate firewalls, and whitelist environments.',
+        privacyLink: 'Privacy Policy & Refund Terms',
+        starsIntro: 'To pay with Telegram Stars, please contact our manager on Telegram:',
+        starsInstruction: 'You can send payment either via <strong>Fragment</strong> (and send a confirmation screenshot to the manager) or directly using Telegram <strong>Gifts</strong>. Mention your chosen plan in the message.',
+        tonIntro: 'Transfer the required amount on the TON network to the following wallet address:',
+        copyBtn: 'Copy wallet address',
+        copiedBtn: 'Address copied!',
+        tonCommentNote: 'Be sure to include your <strong>Telegram @username</strong> and the <strong>plan name</strong> in the transfer comment (memo) so we can issue your key.',
+        privacyModalTitle: 'Privacy Policy & Refund Guarantee',
+        privacyP1: '<strong>1. What data the basic VPN collects:</strong><br>Wallen vpn enforces a strict No-Logs policy. We do not record, store, or share your browsing history, DNS queries, traffic contents, or originating IP address. To operate your subscription and enforce device limits, our system processes only your technical key ID, plan expiration date, and total bandwidth consumed without linking it to your online activity.',
+        privacyP2: '<strong>2. Refund Guarantee:</strong><br>We value user trust and guarantee a refund if technical issues occur on our service side and our support team is unable to restore connection functionality on your device. To request a refund, simply message our support at @wqreloxzz.'
+      }
+    };
+
+    // Анимация дешифровки текста из символов @!*^%
+    const scrambleChars = '@!*^%#$&?~+=';
+    let scrambleInterval = null;
+
+    function runScramble(targetText) {
+      const el = document.getElementById('scramble-title');
+      if (!el) return;
+      clearInterval(scrambleInterval);
+
+      let iteration = 0;
+      const totalLength = targetText.length;
+
+      scrambleInterval = setInterval(() => {
+        el.textContent = targetText
+          .split('')
+          .map((char, index) => {
+            if (char === ' ') return ' ';
+            if (index < iteration) {
+              return targetText[index];
+            }
+            return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+          })
+          .join('');
+
+        if (iteration >= totalLength) {
+          clearInterval(scrambleInterval);
+          el.textContent = targetText;
+        }
+        iteration += 0.45;
+      }, 32);
+    }
+
+    // Переключение языка
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+
+      document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) {
+          el.innerHTML = i18n[lang][key];
+        }
+      });
+
+      // Перезапуск анимации заголовка на выбранном языке
+      runScramble(i18n[lang].heroTitle);
+
+      // Обновление цен в карточках тарифов
+      updatePriceCard('basic');
+      updatePriceCard('prem1');
+      updatePriceCard('prem5');
+    }
+
+    // Выбор длительности тарифа
+    function selectDuration(plan, duration, btnEl) {
+      selectedDurations[plan] = duration;
+      const parent = btnEl.parentElement;
+      parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      updatePriceCard(plan);
+    }
+
+    function updatePriceCard(plan) {
+      const dur = selectedDurations[plan];
+      const data = pricingData[plan][dur];
+      const box = document.getElementById(`price-${plan}`);
+      if (!box || !data) return;
+
+      let html = `
+        <div class="price-row">
+          <span class="price-label">Telegram Stars</span>
+          <span class="price-val">${data.stars[currentLang]}</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">TON Crypto</span>
+          <span class="price-val">${data.ton}</span>
+        </div>
+      `;
+      if (data.note) {
+        html += `<span class="price-alt-note">${data.note[currentLang]}</span>`;
+      }
+      box.innerHTML = html;
+    }
+
+    // Переключение вкладок (Новости / Отзывы / Документация)
+    function switchHub(tabName, btnEl) {
+      document.querySelectorAll('.hub-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.querySelectorAll('.hub-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`hub-${tabName}`).classList.add('active');
+    }
+
+    // Модальное окно покупки
+    function openBuyModal(plan) {
+      const dur = selectedDurations[plan];
+      const data = pricingData[plan][dur];
+      const planNames = {
+        basic: i18n[currentLang].planBasicName,
+        prem1: i18n[currentLang].planPrem1Name,
+        prem5: i18n[currentLang].planPrem5Name
+      };
+      const durNames = {
+        '7d': i18n[currentLang].dur7,
+        '30d': i18n[currentLang].dur30,
+        '365d': plan === 'prem5' ? i18n[currentLang].durYear : i18n[currentLang].dur365
+      };
+
+      document.getElementById('modal-plan-title').textContent = planNames[plan];
+      document.getElementById('modal-plan-subtitle').textContent =
+        `${durNames[dur]} — ${data.stars[currentLang]} / ${data.ton}`;
+
+      switchPayMethod('stars');
+      document.getElementById('buy-modal').classList.add('open');
+    }
+
+    function switchPayMethod(method) {
+      document.getElementById('pay-tab-stars').classList.toggle('active', method === 'stars');
+      document.getElementById('pay-tab-ton').classList.toggle('active', method === 'ton');
+
+      document.getElementById('pay-content-stars').style.display = method === 'stars' ? 'block' : 'none';
+      document.getElementById('pay-content-ton').style.display = method === 'ton' ? 'block' : 'none';
+    }
+
+    function copyTonAddress() {
+      const addr = document.getElementById('ton-address').textContent.trim();
+      navigator.clipboard.writeText(addr).then(() => {
+        const btn = document.getElementById('copy-ton-btn');
+        btn.textContent = i18n[currentLang].copiedBtn;
+        setTimeout(() => {
+          btn.textContent = i18n[currentLang].copyBtn;
+        }, 2000);
+      });
+    }
+
+    function openPrivacyModal() {
+      document.getElementById('privacy-modal').classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function closeModalOnBg(e, id) {
+      if (e.target.id === id) {
+        closeModal(id);
+      }
+    }
+
+    // Плавное появление секций при прокрутке
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Запуск анимации при загрузке страницы
+    window.addEventListener('DOMContentLoaded', () => {
+      runScramble(i18n.ru.heroTitle);
+    });
+  </script>
+</body>
+</html>
